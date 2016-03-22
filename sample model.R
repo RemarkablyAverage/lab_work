@@ -29,8 +29,9 @@ generate_string <- function(
 #put into dataframe
 #random generate index number 1-cuts
 #piece back strings together
-create_transcript <- function(
+create_cuts <- function(
 	operating_str = NULL,
+	filterby = NULL,
 	cuts = NULL) {
 
 	if (is.null(cuts)) {
@@ -39,25 +40,31 @@ create_transcript <- function(
 	if (is.null(operating_str)) {
 		operating_str <- generate_string(400)
 	}
+	if (is.null(filterby)) {
+		filterby <- 45
+	}
 	i <- 1;
 	cuts_vector <- c()
 	while (operating_str != "" && i <= cuts) {
 		start <- as.integer(sample(0:(nchar(operating_str)/(cuts * i)), 1) + 1)
 		end <- as.integer((sample(10:20) * start) , 1)
-		cut <- substr(operating_str, start, end)
-		cuts_vector <- c(cuts_vector, cut)
-		operating_str <- gsub(cut, "", operating_str)
-		i <- i + 1
+		if (start + end <= filterby) {
+			cut <- substr(operating_str, start, end)
+			cuts_vector <- c(cuts_vector, cut)
+			operating_str <- gsub(cut, "", operating_str)
+			i <- i + 1
+		} else {
+			next
+		}
 	}
-
 	cuts_df <- data.frame(cuts = cuts_vector)
-
+	cuts_df
 }
 
-sample_main <- function() {
-	test_str <- generate_string(length = 10000)
-	chopped_up <- cut_str(test_str)
 
+
+main <- function() {
+	chopped_up <- cut_str(test_str)
 }
 
 
