@@ -22,18 +22,44 @@ generate_string <- function(
 		appchar <- sample(c("A", "T", "C", "G"), 1, replace=FALSE)
 		randomString <- paste(randomString, appchar, sep = "")
 	}
-	randomString
+	return randomString
 }
 
-cut_string <- function(
-	) {
+#randomly cut up string
+#put into dataframe
+#random generate index number 1-cuts
+#piece back strings together
+create_transcript <- function(
+	operating_str = NULL,
+	cuts = NULL) {
+
+	if (is.null(cuts)) {
+		cuts <- 30
+	}
+	if (is.null(operating_str)) {
+		operating_str <- generate_string(400)
+	}
+	i <- 1;
+	cuts_vector <- c()
+	while (operating_str != "" && i <= cuts) {
+		start <- as.integer(sample(0:(nchar(operating_str)/(cuts * i)), 1) + 1)
+		end <- as.integer((sample(10:20) * start) , 1)
+		cut <- substr(operating_str, start, end)
+		cuts_vector <- c(cuts_vector, cut)
+		operating_str <- gsub(cut, "", operating_str)
+		i <- i + 1
+	}
+
+	cuts_df <- data.frame(cuts = cuts_vector)
 
 }
 
-string_table_create <- function( 
-	length = NULL,
-	cuts = NULL,
-	
-	) {
+sample_main <- function() {
+	test_str <- generate_string(length = 10000)
+	chopped_up <- cut_str(test_str)
 
 }
+
+
+
+
