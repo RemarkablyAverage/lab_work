@@ -61,11 +61,32 @@ create_cuts <- function(
 	cuts_df
 }
 
+#return a vector of transcripts
+create_transcripts <- function(
+	chop_df = NULL
+	transcript_number = NULL) {
+
+	if (is.null(transcript_number)) {
+		transcript_number <- 7
+	}
+	
+	end_sample <- nrow(chop_df)
+
+}
+
 
 
 main <- function() {
 	chopped_up <- cut_str(test_str)
+	transcripts <- create_transcripts(chopped_up)
 }
+
+
+
+
+
+
+
 
 
 
