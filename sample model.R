@@ -48,7 +48,7 @@ create_cuts <- function(
 	cuts_vector <- c()
 	while (operating_str != "" && i <= cuts) {
 		start <- as.integer(sample(0:(nchar(operating_str)/(cuts * i)), 1) + 1)
-		end <- as.integer((sample(10:20) * start) , 1)
+		end <- as.integer(sample((10:20) * start, 1))
 		cut <- substr(operating_str, start, end)
 		cuts_vector <- c(cuts_vector, cut)
 		operating_str <- gsub(cut, "", operating_str)
@@ -80,8 +80,8 @@ create_transcripts <- function(
 	for (x in 1:transcript_number) {
 		individual_transcript <- c()
 		for (i in 1:length) {
-			rand <- as.integer(sample(1:end_sample))
-			individual_transcript <- c(individual_transcript, (chop_df[rand,]))
+			rand <- as.integer(sample((1:end_sample), 1))
+			individual_transcript <- paste(individual_transcript, (chop_df[rand,]), sep = "")
 		}
 		transcripts <- c(transcripts, individual_transcript)
 	}
