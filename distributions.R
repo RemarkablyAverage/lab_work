@@ -5,15 +5,6 @@ library("Matrix")
 library("ggplot2")
 library("gplots")
 
-
-#takes in a count to how many base pairs(lol???)
-#returns a data frame with the number of cuts
-# cuts   |   actual string
-#  1     | ATCG....G
-#  2     | ATCG.....G 
-#etc
-
-
 generate_string <- function(
 	length = NULL) {
 
