@@ -58,7 +58,8 @@ create_cuts <- function(
 create_transcripts <- function(
 	chop_df = NULL,
 	transcript_number = NULL,
-	length = NULL) {
+	length = NULL,
+	variation = NULL) {
 
 	if (is.null(transcript_number)) {
 		transcript_number <- 4
@@ -66,11 +67,22 @@ create_transcripts <- function(
 	if (is.null(length)) {
 		length <- 30
 	}
+	if (is.null(variation)) {
+		variation <- TRUE
+	}
 	end_sample <- nrow(chop_df)
 	transcripts <- c()
 	for (x in 1:transcript_number) {
 		individual_transcript <- c()
-		for (i in 1:length) {
+		if (variation) {
+			start <- as.integer(length - sample(length/10:length, 1))
+			end <- as.integer(length + sample(length:length*1.1, 1))
+			length_loop <- sample(start:end, 1)
+			print(length_loop)
+		} else {
+			length_loop <- length
+		}
+		for (i in 1:length_loop) {
 			rand <- as.integer(sample((1:end_sample), 1))
 			individual_transcript <- paste(individual_transcript, (chop_df[rand,]), sep = "")
 		}
