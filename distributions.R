@@ -13,7 +13,7 @@ generate_string <- function(
 		appchar <- sample(c("A", "T", "C", "G"), 1, replace=FALSE)
 		randomString <- paste(randomString, appchar, sep = "")
 	}
-	return randomString
+	randomString
 }
 
 #randomly cut up string
@@ -92,11 +92,11 @@ create_transcripts <- function(
 	ret_df
 }
 
-main <- function() {
-	opstr <- generate_string(300000)
-	chopped_up <- create_cuts(operating_str=opstr, filterby=100, cuts=1000)
-	transcripts <- create_transcripts(chopped_up)
-}
+
+opstr <- generate_string(100000)
+chopped_up <- create_cuts(operating_str=opstr, filterby=100, cuts=1000)
+transcripts <- create_transcripts(chopped_up)
+
 
 
 
