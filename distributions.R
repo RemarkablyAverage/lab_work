@@ -86,6 +86,7 @@ create_transcripts <- function(
 			rand <- as.integer(sample((1:end_sample), 1))
 			individual_transcript <- paste(individual_transcript, (chop_df[rand,]), sep = "|")
 		}
+		individual_transcript <- paste(individual_transcript, "|", sep="")
 		transcripts <- c(transcripts, individual_transcript)
 	}
 	ret_df <- data.frame(transcripts = transcripts, stringsAsFactors = FALSE)
@@ -98,25 +99,35 @@ create_transcripts <- function(
 
 plot_transcripts <- function(
 	dataf = NULL,
-	set_distribution_length = NULL,
-	distribution_type = NULL) {
+	set_distribution_length = NULL, 
+	distribution_type = NULL) { #this is binary, 0 = truncated, 1 = fitted
 
-	#parse string
-	distribution_vector <- c()
+	if (is.null(distribution_type)) {
+		distribution_type <- 0
+	}
 
 	for (t in 1:nrow(dataf)) {
 		#iterate through all transcripts
-		transcript <- dataf[t,]
-		for (i in 1:nchar(transcript)) {
-
+		transcript <- strsplit(dataf[t,], "")[[1]]
+		eq_classes <- c()
+		eq_string <- NULL
+		#parse string
+		for (base in transcript) {
+			if (base != "|") {
+				eq_string <- paste(eq_string, base, sep="")
+			} else {
+				eq_classes <- c(eq_classes, eq_string)
+				eq_string <- NULL
+			}
 		}
 		#call plot function
-		plot(transcript, distribution_type)
+		plot_df <- data.frame(index)
+		plots(plot_df, distribution_type)
 	}
 }
 
-plot <- function(
-	transcript = NULL,
+plots <- function(
+	transcript_df = NULL,
 	distribution_type = NULL) {
 
 }
