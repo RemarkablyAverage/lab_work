@@ -114,42 +114,45 @@ plot_transcripts <- function(
 	if (is.null(distribution_type)) {
 		distribution_type <- 0
 	}
-	#declare counters
-	i <- 0
 	for (t in 1:nrow(dataf)) {
 		#iterate through all transcripts
 		transcript <- strsplit(dataf[t,], "")[[1]]
-		eq_classes <- c()
-		eq_string <- NULL
+		reads <- c()
+		read_str <- NULL
 		#parse string
 		for (base in transcript) {
 			if (base != "|") {
-				i <- i + 1
-				eq_string <- paste(eq_string, base, sep="")
+				read_str <- paste(read_str, base, sep="")
 			} else {
-				eq_classes <- c(eq_classes, eq_string)
-				eq_string <- NULL
+				reads <- c(reads, read_str)
+				read_str <- NULL
 			}
 		}
-		#call plot function
-		plot_df <- data.frame(eq=eq_classes, stringsAsFactors=FALSE)
-		plots(transcript_df=plot_df, distribution_type=distribution_type, total_length=i, lambda=lambda)
-		#reset counters
-		i <- 0
+		plots(transcript=reads, distribution_type=distribution_type, lambda=lambda)
 	}
 }
 
 plots <- function(
-	transcript_df = NULL,
+	transcript = NULL,
 	distribution_type = NULL,
 	total_length = NULL,
 	lambda = NULL) {
 
 	p <- NULL
-	if (distribution_type == 0) {
-		q3 <- log(4)/lambda
+	#construct indexes given frames | lmaomlmao remember freaking R indexes at 1
+	index_vector <- c(1)
+	curr <- 1
+	for (i in 1:length(transcript) - 1) {
+		read <- transcript[i]
+		print(nchar(read))
+		curr <- curr + nchar(read)
+		index_vector <- c(index_vector, curr)
+	}
 
-		p <- 
+	if (distribution_type == 0) {
+		
+
+		
 	}
 	if (distribution_type == 1) {
 
