@@ -61,6 +61,9 @@ create_transcripts <- function(
 	length = NULL,
 	variation = NULL) {
 
+	#determine truncation point
+	ret_average <- 0
+
 	if (is.null(transcript_number)) {
 		transcript_number <- 4
 	}
@@ -78,7 +81,7 @@ create_transcripts <- function(
 			start <- as.integer(length - sample(length/8:length, 1))
 			end <- as.integer(length + sample(length:length*1.2, 1))
 			length_loop <- sample(start:end, 1)
-			print(length_loop)
+			#print(length_loop)
 		} else {
 			length_loop <- length
 		}
@@ -89,10 +92,13 @@ create_transcripts <- function(
 		for (i in rand) {
 			individual_transcript <- paste(individual_transcript, (chop_df[i,]), sep = "|")
 		}
+		#length rand is the number of "|" characters
+		ret_average <- ret_average + nchar(individual_transcript) - length(rand)
 		individual_transcript <- paste(individual_transcript, "|", sep="")
 		transcripts <- c(transcripts, individual_transcript)
 	}
-	ret_df <- data.frame(transcripts = transcripts, stringsAsFactors = FALSE)
+	ret_average <- ret_average / transcript_number
+	ret_df <- data.frame(transcripts = transcripts, avg = ret_average, stringsAsFactors = FALSE)
 	ret_df
 }
 
@@ -104,7 +110,7 @@ create_transcripts <- function(
 
 plot_transcripts <- function(
 	dataf = NULL,
-	set_distribution_length = NULL, 
+	d_length = NULL, 
 	distribution_type = NULL,
 	lambda = NULL) { #this is binary, 0 = truncated, 1 = fitted
 
@@ -114,13 +120,16 @@ plot_transcripts <- function(
 	if (is.null(distribution_type)) {
 		distribution_type <- 0
 	}
+	if (is.null(d_length)) {
+
+	}
 	for (t in 1:nrow(dataf)) {
 		#iterate through all transcripts
-		transcript <- strsplit(dataf[t,], "")[[1]]
+		transcript <- strsplit(as.character(dataf[t,][[1]]),"")
 		reads <- c()
 		read_str <- NULL
 		#parse string
-		for (base in transcript) {
+		for (base in transcript[[1]]) {
 			if (base != "|") {
 				read_str <- paste(read_str, base, sep="")
 			} else {
@@ -128,14 +137,14 @@ plot_transcripts <- function(
 				read_str <- NULL
 			}
 		}
-		plots(transcript=reads, distribution_type=distribution_type, lambda=lambda)
+		plots(transcript=reads, distribution_type=distribution_type, trunc=dataf[,2][1], lambda=lambda)
 	}
 }
 
 plots <- function(
 	transcript = NULL,
 	distribution_type = NULL,
-	total_length = NULL,
+	trunc = NULL,
 	lambda = NULL) {
 
 	p <- NULL
@@ -149,11 +158,10 @@ plots <- function(
 		index_vector <- c(index_vector, curr)
 	}
 
-	if (distribution_type == 0) {
-		
-
+	if (distribution_type == 0) { #truncated
 		
 	}
+
 	if (distribution_type == 1) {
 
 	}
