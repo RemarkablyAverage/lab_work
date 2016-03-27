@@ -38,7 +38,7 @@ create_cuts <- function(
 	i <- 1;
 	cuts_vector <- c()
 	while (operating_str != "" && i <= cuts) {
-		start <- as.integer(sample(0:(nchar(operating_str)/(cuts * i)), 1) + 1)
+		start <- as.integer(sample(0:i, 1) + 1)
 		end <- as.integer(sample((10:20) * start, 1))
 		cut <- substr(operating_str, start, end)
 		cuts_vector <- c(cuts_vector, cut)
@@ -82,9 +82,12 @@ create_transcripts <- function(
 		} else {
 			length_loop <- length
 		}
-		for (i in 1:length_loop) {
-			rand <- as.integer(sample((1:end_sample), 1))
-			individual_transcript <- paste(individual_transcript, (chop_df[rand,]), sep = "|")
+		if (length_loop > end_sample) {
+			length_loop <- end_sample
+		}
+		rand <- as.integer(sample((1:end_sample), size=length_loop, replace=FALSE))
+		for (i in rand) {
+			individual_transcript <- paste(individual_transcript, (chop_df[i,]), sep = "|")
 		}
 		individual_transcript <- paste(individual_transcript, "|", sep="")
 		transcripts <- c(transcripts, individual_transcript)
@@ -96,16 +99,23 @@ create_transcripts <- function(
 #plot transcripts as a function of y = e^-x and 
 #use | as delminator
 #use nchar as count
+#assumptions 
+#truncated @ q3, make length fit at q3 to make a discernable difference
 
 plot_transcripts <- function(
 	dataf = NULL,
 	set_distribution_length = NULL, 
-	distribution_type = NULL) { #this is binary, 0 = truncated, 1 = fitted
+	distribution_type = NULL,
+	lambda = NULL) { #this is binary, 0 = truncated, 1 = fitted
 
+	if (is.null(lambda)) {
+		lambda <- 1
+	}
 	if (is.null(distribution_type)) {
 		distribution_type <- 0
 	}
-
+	#declare counters
+	i <- 0
 	for (t in 1:nrow(dataf)) {
 		#iterate through all transcripts
 		transcript <- strsplit(dataf[t,], "")[[1]]
@@ -114,6 +124,7 @@ plot_transcripts <- function(
 		#parse string
 		for (base in transcript) {
 			if (base != "|") {
+				i <- i + 1
 				eq_string <- paste(eq_string, base, sep="")
 			} else {
 				eq_classes <- c(eq_classes, eq_string)
@@ -121,15 +132,30 @@ plot_transcripts <- function(
 			}
 		}
 		#call plot function
-		plot_df <- data.frame(index)
-		plots(plot_df, distribution_type)
+		plot_df <- data.frame(eq=eq_classes, stringsAsFactors=FALSE)
+		plots(transcript_df=plot_df, distribution_type=distribution_type, total_length=i, lambda=lambda)
+		#reset counters
+		i <- 0
 	}
 }
 
 plots <- function(
 	transcript_df = NULL,
-	distribution_type = NULL) {
+	distribution_type = NULL,
+	total_length = NULL,
+	lambda = NULL) {
 
+	p <- NULL
+	if (distribution_type == 0) {
+		q3 <- log(4)/lambda
+
+		p <- 
+	}
+	if (distribution_type == 1) {
+
+	}
+
+	p
 }
 
 opstr <- generate_string(1000)
