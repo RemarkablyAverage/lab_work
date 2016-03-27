@@ -61,9 +61,6 @@ create_transcripts <- function(
 	length = NULL,
 	variation = NULL) {
 
-	#determine truncation point
-	ret_average <- 0
-
 	if (is.null(transcript_number)) {
 		transcript_number <- 4
 	}
@@ -92,13 +89,10 @@ create_transcripts <- function(
 		for (i in rand) {
 			individual_transcript <- paste(individual_transcript, (chop_df[i,]), sep = "|")
 		}
-		#length rand is the number of "|" characters
-		ret_average <- ret_average + nchar(individual_transcript) - length(rand)
 		individual_transcript <- paste(individual_transcript, "|", sep="")
 		transcripts <- c(transcripts, individual_transcript)
 	}
-	ret_average <- ret_average / transcript_number
-	ret_df <- data.frame(transcripts = transcripts, avg = ret_average, stringsAsFactors = FALSE)
+	ret_df <- data.frame(transcripts = transcripts, stringsAsFactors = FALSE)
 	ret_df
 }
 
@@ -110,21 +104,25 @@ create_transcripts <- function(
 
 plot_transcripts <- function(
 	dataf = NULL,
-	d_length = NULL, 
-	distribution_type = NULL,
-	lambda = NULL) { #this is binary, 0 = truncated, 1 = fitted
+	trunca = NULL, 
+	lambda = NULL) {
 
 	if (is.null(lambda)) {
 		lambda <- 1
 	}
-	if (is.null(distribution_type)) {
-		distribution_type <- 0
-	}
-	if (is.null(d_length)) {
-
+	if (is.null(trunca)) {
+		maxl <- 0
+		for (it in 1:nrow(dataf)){
+			find_trunc <- as.character(dataf[it,][[1]])
+			if (maxl < nchar(find_trunc)) {
+				maxl <- nchar(find_trunc)
+			}
+		}
+		trunca <- maxl
 	}
 	for (t in 1:nrow(dataf)) {
 		#iterate through all transcripts
+		current_length <- nchar(as.character(dataf[t,][[1]]))
 		transcript <- strsplit(as.character(dataf[t,][[1]]),"")
 		reads <- c()
 		read_str <- NULL
@@ -137,36 +135,58 @@ plot_transcripts <- function(
 				read_str <- NULL
 			}
 		}
-		plots(transcript=reads, distribution_type=distribution_type, trunc=dataf[,2][1], lambda=lambda)
+		plots_trunc(transcript=reads, distribution_type=distribution_type, lambda=find_lambda(x=trunca, tolerance=tol))
+		plots_fit(transcript=reads, distribution_type=distribution_type, lambda=find_lambda(x=current_length, tolerance=tol))
 	}
 }
 
-plots <- function(
+plots_trunc <- function(
 	transcript = NULL,
 	distribution_type = NULL,
-	trunc = NULL,
 	lambda = NULL) {
 
 	p <- NULL
+	tol <- 1e-10
 	#construct indexes given frames | lmaomlmao remember freaking R indexes at 1
 	index_vector <- c(1)
 	curr <- 1
-	for (i in 1:length(transcript) - 1) {
+	for (i in 1:(length(transcript) - 1)) {
 		read <- transcript[i]
-		print(nchar(read))
 		curr <- curr + nchar(read)
 		index_vector <- c(index_vector, curr)
 	}
 
-	if (distribution_type == 0) { #truncated
-		
-	}
-
-	if (distribution_type == 1) {
-
-	}
-
 	p
+}
+
+plots_fit <- function(
+	transcript = NULL,
+	distribution_type = NULL,
+	lambda = NULL) {
+
+	p <- NULL
+	tol <- 1e-10
+	#construct indexes given frames | lmaomlmao remember freaking R indexes at 1
+	index_vector <- c(1)
+	curr <- 1
+	for (i in 1:(length(transcript) - 1)) {
+		read <- transcript[i]
+		curr <- curr + nchar(read)
+		index_vector <- c(index_vector, curr)
+	}
+	
+	p
+}
+
+find_lambda <- function(
+	x = NULL, 
+	tolerance = NULL) {
+
+	lambda <- 0.00001
+	while ((lambda * exp(1)^(-lambda*x)) > tolerance) {
+		lambda <- lambda + 0.000001
+	}
+	lambda
 }
 
 opstr <- generate_string(1000)
