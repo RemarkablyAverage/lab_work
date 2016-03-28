@@ -141,12 +141,12 @@ plot_transcripts <- function(
 				read_str <- NULL
 			}
 		}
-		plots_trunc(transcript=reads, distribution_type=distribution_type, lambda=lambda)
-		plots_fit(transcript=reads, distribution_type=distribution_type, lambda=find_lambda(x=current_length, tolerance=tol))
+		plots(transcript=reads, distribution_type=distribution_type, lambda=lambda)
+		plots(transcript=reads, distribution_type=distribution_type, lambda=find_lambda(x=current_length, tolerance=tol))
 	}
 }
 
-plots_trunc <- function(
+plots <- function(
 	transcript = NULL,
 	distribution_type = NULL,
 	lambda = NULL) {
@@ -155,46 +155,24 @@ plots_trunc <- function(
 	#construct indexes given frames | lmaomlmao remember freaking R indexes at 1
 	index_vector <- c(0)
 	curr <- 1
+	for (i in 1:(length(transcript))) {
+		read <- transcript[i]
+		curr <- curr + nchar(read)
+		index_vector <- c(index_vector, curr)
+	}
 	#generate x axis
-	for (i in 1:(length(transcript))) {
-		read <- transcript[i]
-		curr <- curr + nchar(read)
-		index_vector <- c(index_vector, curr)
+	x_vector <- c()
+	for (x in 1:(length(index_vector) - 1)) {
+		x_vector <- c(x_vector, (index_vector[x + 1] - index_vector[x]))
 	}
 	#generate y axis
 	y_vector <- c()
-	for (y in 1:(length(transcript) - 1)) {
+	for (y in 1:(length(index_vector) - 1)) {
 		input <- (index_vector[y + 1] + index_vector[y])/2
 		output <- exponential_dist(x=input, lambda=lambda)
 		y_vector <- c(y_vector, output)
 	}
-	p
-}
-
-plots_fit <- function(
-	transcript = NULL,
-	distribution_type = NULL,
-	lambda = NULL) {
-
-	p <- NULL
-	tol <- 1e-10
-	#construct indexes given frames | lmaomlmao remember freaking R indexes at 1
-	index_vector <- c(1)
-	curr <- 1
-	for (i in 1:(length(transcript))) {
-		read <- transcript[i]
-		curr <- curr + nchar(read)
-		index_vector <- c(index_vector, curr)
-	}
-	#generate y axis
-	y_vector <- c()
-	for (y in 1:(length(transcript) - 1)) {
-		input <- (index_vector[y + 1] + index_vector[y])/2
-		output <- exponential_dist(x=input, lambda=lambda)
-		y_vector <- c(y_vector, output)
-	}
-	
-	p
+	p <- barplot(y_vector, x_vector, space = 0)
 }
 
 exponential_dist <- function(
@@ -219,7 +197,6 @@ find_lambda <- function(
 opstr <- generate_string(1000)
 chopped_up <- create_cuts(operating_str=opstr, filterby=100, cuts=15)
 transcripts <- create_transcripts(chop_df=chopped_up, transcript_number=4, length=10, variation=TRUE)
-
 
 
 
