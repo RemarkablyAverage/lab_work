@@ -38,13 +38,20 @@ create_cuts <- function(
 	}
 	i <- 1;
 	cuts_vector <- c()
+	# while (operating_str != "" && i <= cuts) {
+	# 	start <- as.integer(sample(0:i, 1) + 1)
+	# 	end <- as.integer(sample((10:20) * start, 1))
+	# 	cut <- substr(operating_str, start, end)
+	# 	cuts_vector <- c(cuts_vector, cut)
+	# 	operating_str <- gsub(cut, "", operating_str)
+	# 	i <- i + 1
+	# }
 	while (i <= cuts) {
 		start <- as.integer(sample(0:i, 1) + 1)
-		#small
-		end <- as.integer(sample((10:20), 1))
+		end <- as.integer(sample((10:20) * start, 1))
 		cut <- substr(operating_str, start, end)
 		if (filter) {
-			if (nchar(cut) < filterby && nchar(cut) > 0) {
+			if (nchar(cut) < filterby) {
 				cuts_vector <- c(cuts_vector, cut)
 				i <- i + 1
 			} else {
@@ -114,44 +121,69 @@ plot_transcripts <- function(
 	dist_type = NULL,
 	t = NULL) {
 
-	p <- NULL
-	final_df <- NULL
-	for (t in 1:nrow(transcripts)) {
-		#iterate through all transcripts
-		current_length <- nchar(as.character(dataf[t,][[1]]))
-		transcript <- strsplit(as.character(dataf[t,][[1]]),"")
-		#reads <- c()
-		read_str <- NULL
-		#parse string
-		for (base in transcript[[1]]) {
-			if (base != "|") {
-				read_str <- paste(read_str, base, sep="")
+	tol <- 1e-10
+
+	#this is to find the truncation point for non fitted distribution
+	if (is.null(trunca)) {
+		maxl <- 0
+		for (it in 1:nrow(dataf)){
+			find_trunc <- as.character(dataf[it,][[1]])
+			if (maxl < nchar(find_trunc)) {
+				maxl <- nchar(find_trunc)
 			}
 		}
-		app_df <- create_df(transcript=read_str)
+		trunca <- maxl
 	}
-	p <- ggplot(plot_df, aes(x=x_vector, y=y_vector))
-	p <- p + geom_line()
-	p
+	#lambda <- find_lambda(x=trunca, tolerance=tol)
 
-	#if (dist_type == 0) {
-	# } else {
-	# 	plots(transcript=reads, distribution_type=distribution_type, lambda=find_lambda(x=current_length, tolerance=tol))
-	# }	
+	#iterate through all transcripts
+	current_length <- nchar(as.character(dataf[t,][[1]]))
+	transcript <- strsplit(as.character(dataf[t,][[1]]),"")
+	reads <- c()
+	read_str <- NULL
+	#parse string
+	for (base in transcript[[1]]) {
+		if (base != "|") {
+			read_str <- paste(read_str, base, sep="")
+		} else {
+			reads <- c(reads, read_str)
+			read_str <- NULL
+		}
+	}
+	if (dist_type == 0) {
+		plots(transcript=reads, distribution_type=distribution_type, lambda=lambda)
+	} else {
+		plots(transcript=reads, distribution_type=distribution_type, lambda=find_lambda(x=current_length, tolerance=tol))
+	}	
 }
 
-create_df <- function(
-	transcript = NULL) {
+plots <- function(
+	transcript = NULL,
+	distribution_type = NULL,
+	lambda = NULL) {
+
 	p <- NULL
-	#generate x 
-	x_vector <- c(1:nchar(transcript))
-	#generate y 
+	#construct indexes given frames | lmaomlmao remember freaking R indexes at 1
+	index_vector <- c(0)
+	curr <- 1
+	for (i in 1:(nchar(transcript))) {
+		read <- transcript[i]
+		curr <- curr + nchar(read)
+		index_vector <- c(index_vector, curr)
+	}
+	#generate x axis
+	x_vector <- c()
+	for (x in 1:(length(index_vector) - 1)) {
+		x_vector <- c(x_vector, (index_vector[x + 1] - index_vector[x]))
+	}
+	#generate y axis
 	y_vector <- c()
-	for (y in 1:length(x_vector)) {
-		output <- exponential_dist(x=y, lambda=.1)
+	for (y in 1:(length(index_vector) - 1)) {
+		input <- (index_vector[y + 1] + index_vector[y])/2
+		output <- exponential_dist(x=input, lambda=lambda)
 		y_vector <- c(y_vector, output)
 	}
-	data.frame(x = x_vector, y = y_vector)
+	p <- barplot(y_vector, x_vector, space = 0)
 }
 
 exponential_dist <- function(
@@ -173,9 +205,9 @@ find_lambda <- function(
 	lambda
 }
 
-opstr <- generate_string(100)
-chopped_up <- create_cuts(operating_str=opstr, filter=TRUE, filterby=10, cuts=40)
-transcripts <- create_transcripts(chop_df=chopped_up, transcript_number=4, length=5, variation=TRUE)
+opstr <- generate_string(1000)
+chopped_up <- create_cuts(operating_str=opstr, filterby=50, cuts=40)
+transcripts <- create_transcripts(chop_df=chopped_up, transcript_number=4, length=10, variation=TRUE)
 plot_transcripts(dataf=transcripts, t=1, dist_type=0)
 
 
