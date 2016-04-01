@@ -116,42 +116,46 @@ plot_transcripts <- function(
 
 	p <- NULL
 	final_df <- NULL
-	for (t in 1:nrow(transcripts)) {
-		#iterate through all transcripts
-		current_length <- nchar(as.character(dataf[t,][[1]]))
-		transcript <- strsplit(as.character(dataf[t,][[1]]),"")
-		#reads <- c()
-		read_str <- NULL
-		#parse string
-		for (base in transcript[[1]]) {
-			if (base != "|") {
-				read_str <- paste(read_str, base, sep="")
-			}
+	#for (t in 1:nrow(transcripts)) {
+	#iterate through all transcripts
+	current_length <- nchar(as.character(dataf[t,][[1]]))
+	transcript <- strsplit(as.character(dataf[t,][[1]]),"")
+	#reads <- c()
+	read_str <- NULL
+	#parse string
+	for (base in transcript[[1]]) {
+		if (base != "|") {
+			read_str <- paste(read_str, base, sep="")
 		}
-		app_df <- create_df(transcript=read_str)
 	}
-	p <- ggplot(plot_df, aes(x=x_vector, y=y_vector))
-	p <- p + geom_line()
-	p
-
-	#if (dist_type == 0) {
-	# } else {
-	# 	plots(transcript=reads, distribution_type=distribution_type, lambda=find_lambda(x=current_length, tolerance=tol))
-	# }	
+	trunc <- create_df(transcript=read_str, type="trunc")
+	fit <- create_df(transcript=read_str, type="fit", fit=TRUE)
+	final_df <- rbind(trunc, fit)
+#	}
+	p <- ggplot(final_df, aes(x, y)) + geom_line(aes(colour = type, group = type), linetype = "dotted")
+	p <- p + geom_point(aes(colour = factor(type)))
 }
 
 create_df <- function(
-	transcript = NULL) {
-	p <- NULL
+	transcript = NULL,
+	type = NULL,
+	fit = NULL) {
+
+	if (!is.null(fit)) {
+		lambda <- find_lambda(x=nchar(transcript))
+	} else {
+		lambda <- .1
+	}
+
 	#generate x 
 	x_vector <- c(1:nchar(transcript))
 	#generate y 
 	y_vector <- c()
 	for (y in 1:length(x_vector)) {
-		output <- exponential_dist(x=y, lambda=.1)
+		output <- exponential_dist(x=y, lambda=lambda)
 		y_vector <- c(y_vector, output)
 	}
-	data.frame(x = x_vector, y = y_vector)
+	data.frame(x = x_vector, y = y_vector, type=as.character(type))
 }
 
 exponential_dist <- function(
@@ -163,9 +167,9 @@ exponential_dist <- function(
 }
 
 find_lambda <- function(
-	x = NULL, 
-	tolerance = NULL) {
+	x = NULL) {
 
+	tolerance <- 1e-10
 	lambda <- 0.00001
 	while ((lambda * exp(1)^(-lambda*x)) > tolerance) {
 		lambda <- lambda + 0.000001
