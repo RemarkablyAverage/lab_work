@@ -2,8 +2,8 @@
 # install.packages("gplots")
 # install.packages("Matrix")
 # library("Matrix")
-# library("ggplot2")
-# library("gplots")
+
+
 
 generate_string <- function(
 	length = NULL) {
@@ -109,18 +109,11 @@ create_transcripts <- function(
 
 plot_transcripts <- function(
 	dataf = NULL,
-	trunca = NULL, 
-	lambda = 1,
-	dist_type = NULL,
 	t = NULL) {
 
 	p <- NULL
 	final_df <- NULL
-	#for (t in 1:nrow(transcripts)) {
-	#iterate through all transcripts
-	current_length <- nchar(as.character(dataf[t,][[1]]))
 	transcript <- strsplit(as.character(dataf[t,][[1]]),"")
-	#reads <- c()
 	read_str <- NULL
 	#parse string
 	for (base in transcript[[1]]) {
@@ -128,59 +121,68 @@ plot_transcripts <- function(
 			read_str <- paste(read_str, base, sep="")
 		}
 	}
-	trunc <- create_df(transcript=read_str, type="trunc")
+	trunc <- create_df(transcript=read_str, type="trunc", limit=20)
 	fit <- create_df(transcript=read_str, type="fit", fit=TRUE)
 	final_df <- rbind(trunc, fit)
-#	}
 	p <- ggplot(final_df, aes(x, y)) + geom_line(aes(colour = type, group = type), linetype = "dotted")
 	p <- p + geom_point(aes(colour = factor(type)))
+	p
 }
 
 create_df <- function(
 	transcript = NULL,
 	type = NULL,
-	fit = NULL) {
+	fit = NULL,
+	limit=NULL) {
 
 	if (!is.null(fit)) {
-		lambda <- find_lambda(x=nchar(transcript))
+		sigma <- 4
 	} else {
-		lambda <- .1
-	}
+		sigma <- 6
+	} 
 
 	#generate x 
-	x_vector <- c(1:nchar(transcript))
+	if (!is.null(limit)) {
+		x_vector <- c(1:20)
+	} else {
+		x_vector <- c(1:nchar(transcript))
+	}
 	#generate y 
 	y_vector <- c()
 	for (y in 1:length(x_vector)) {
-		output <- exponential_dist(x=y, lambda=lambda)
+		output <- exponential_dist(x=y, sigma=sigma)
 		y_vector <- c(y_vector, output)
 	}
+	y_vector <- y_vector / sum(y_vector)
+	print("probabilities + sum")
+	print(y_vector)
+	print(sum(y_vector))
 	data.frame(x = x_vector, y = y_vector, type=as.character(type))
 }
 
 exponential_dist <- function(
 	x = NULL,
-	lambda = NULL) {
+	sigma = NULL) {
 
-	ret <- lambda * exp(1)^(-lambda*x)
+	ret <- (x / (sigma^2) * exp(1)^(-x^2/(2*sigma^2)))
 	ret
 }
 
-find_lambda <- function(
+find_sigma <- function(
 	x = NULL) {
 
 	tolerance <- 1e-10
-	lambda <- 0.00001
-	while ((lambda * exp(1)^(-lambda*x)) > tolerance) {
-		lambda <- lambda + 0.000001
+	sigma <- 0.00001
+	while (x / (sigma^2) * exp(1)^(-x^2/(2*sigma^2)) > tolerance) {
+		sigma <- sigma + 0.000001
 	}
-	lambda
+	sigma
 }
 
 opstr <- generate_string(100)
 chopped_up <- create_cuts(operating_str=opstr, filter=TRUE, filterby=10, cuts=40)
 transcripts <- create_transcripts(chop_df=chopped_up, transcript_number=4, length=5, variation=TRUE)
-plot_transcripts(dataf=transcripts, t=1, dist_type=0)
+plot_transcripts(dataf=transcripts, t=1)
 
 
 
