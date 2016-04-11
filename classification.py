@@ -1,5 +1,6 @@
 #test arrays
-RNA_simple = ["AAACGAA", "TAACGTA", ]
+RNA_arr = ["AAACGAA", "TAACGTA", ]
+#Node has to exist somewhere in memory right?
 
 #node class
 class Node:
@@ -10,9 +11,6 @@ class Node:
 	def get_data(self):
 		return self.data
 
-	def get_next(self):
-		return self.next_node
-
 	def set_next(self, new_next):
 		self.next_node = new_next
 
@@ -20,6 +18,12 @@ class Node:
 		new_node = Node(data)
 		new_node.set_next(self.head)
 		self.head = new_node
+
+	def print(self):
+		current = self
+		while (current):
+			print(current.get_data())
+			current = current.next
 
 	def search(self, data):
 	    current = self.head
@@ -34,25 +38,23 @@ class Node:
 	    return current
 
 
-#todo, function to get nodes -> probability matrix
+#tempvariables
+scan_length = 3
 
 #classification algorithm 
 #place RNA sequences into correct equivalent classes 
 #naive implementation
-def classify(RNA_arr, scan_length):
+#returns a probability matrix 
+#def classify(RNA_arr, scan_length):
 	#starter node/RNA line
-	starter_rna = RNA_arr[0]
-	head = Node(starter_rna[0:scan_length], None)
-	curr = head
-	for i in range(1, len(starter_rna)):
-		new_node = Node(starter_rna[i:i+scan_length])
-
-	# for i in range(1, len(RNA_arr)):
-	# 	for 
-
-
-
-
-
+starter_rna = RNA_arr[0]
+for i in range(0, len(starter_rna)):
+	if len(starter_rna[i:i+scan_length]) == scan_length:
+		new_node = Node(starter_rna[i:i+scan_length], None)
+		if (i == 0):
+			head = new_node
+			curr = head
+		curr.next = new_node
+		curr = curr.next
 
 
