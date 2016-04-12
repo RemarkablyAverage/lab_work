@@ -27,18 +27,6 @@ class Node:
 			print(current.get_data())
 			current = current.next
 
-	def search(self, data):
-	    current = self.head
-	    found = False
-	    while current and found is False:
-	        if current.get_data() == data:
-	            found = True
-	        else:
-	            current = current.get_next(0)            
-	    if current is None:
-	        raise ValueError("Data not in list")
-	    return current
-
 #test arrays
 RNA_arr = ["AAACGAA", "TAACGTA"]
 RNA_arr = sorted(RNA_arr, key = len)
@@ -52,7 +40,38 @@ row = len(RNA_arr)
 column = len(RNA_arr[0]) - scan_length + 1
 node_matrix = np.ndarray(shape=(row, column), dtype=Node)
 
-#def search_matrix(node_matrix, target_node, input_node):
+def recurse_search_matrix(node, target_string):
+	"""returns coordinates if true, else returns -1"""
+	if (node.get_data() == target_string):
+		return node.coordinates
+	else if (node == None):
+		return -1
+	else if (len(node.next) == 1 and node.coordinates[1] < node.next[0].coordinates[1]):
+		recurse_search_matrix(node.next[0], target_string)
+	else:
+		for child in node.next:
+			temp = recurse_search_matrix(child, target_string)
+      	if temp != -1:
+        	return temp
+    	return -1
+
+
+def search_matrix(node_matrix, input_node):
+	"""returns matching node index (if found data matches) or -1 if not
+	 found. remember that because it is called everytime, the cardinality
+	 of each node should be preserved.
+	 this run time is gonna be absolute trash"""
+	 #memoize by having an index of checked?
+	inpt = input_node.get_data()
+	for i in range(0, len(node_matrix)):
+		#at this point i'm iterating through columns, then into rows
+		if (type(node_matrix[i][0]) == Node):
+			#check the path of the node
+			check = node_matrix[i][0]
+			if (recurse_search_matrix(check, inpt) == -1):
+			 	continue
+			else:
+				return recurse_search_matrix(check, inpt)
 
 
 def classify(RNA_arr, scan_length, node_matrix):
@@ -69,23 +88,23 @@ def classify(RNA_arr, scan_length, node_matrix):
 						curr.root = head #do i need this?
 						node_matrix[i][j] = curr
 					else:
+						#if (search_matrix())
 						curr.root = head #extra??
 						curr.set_next(new_node)
 						curr = curr.get_next(0)
 						node_matrix[i][j] = curr
-		# else:
-		# 	for j in range(0, len(tr)): # don't forget to reset j
-		# 		if (len(tr[j:j+scan_length])) == scan_length: #check i'm still valid
-		# 			check = node_matrix[i][j]
-		# 			new_node = Node(tr[j:j+scan_length], None, [i, j])
-		# 			if (type(check) == Node): #check my current path is a node
-		# 			#now i have to iterate through the whole freaking matrix, 
-		# 			#TODO: memoize my current largest index?
-		# 				for i1, j1 in 
-		# 					if (check.get_data() == new_node.get_data()):
-		# 						node_matrix[i][j] = None
+		else:
+			for j in range(0, len(tr)): # don't forget to reset j
+				if (len(tr[j:j+scan_length])) == scan_length: #check i'm still valid
+					check = node_matrix[i][j]
+					new_node = Node(tr[j:j+scan_length], None, [i, j])
+					if (type(check) == Node): #check my current path is a node
+					#now i have to iterate through the whole freaking matrix, 
+					#TODO: memoize my current largest index?
+						if (search_matrix(node_matrix, check) != -1):
 
-		# 					else:
+						else: 
+					
 
 
 classify(RNA_arr, scan_length, node_matrix)
