@@ -88,22 +88,29 @@ def classify(RNA_arr, scan_length, node_matrix):
 						curr.root = head #do i need this?
 						node_matrix[i][j] = curr
 					else:
-						#if (search_matrix())
-						curr.root = head #extra??
-						curr.set_next(new_node)
-						curr = curr.get_next(0)
-						node_matrix[i][j] = curr
-		else:
-			for j in range(0, len(tr)): # don't forget to reset j
-				if (len(tr[j:j+scan_length])) == scan_length: #check i'm still valid
-					check = node_matrix[i][j]
-					new_node = Node(tr[j:j+scan_length], None, [i, j])
-					if (type(check) == Node): #check my current path is a node
-					#now i have to iterate through the whole freaking matrix, 
-					#TODO: memoize my current largest index?
-						if (search_matrix(node_matrix, check) != -1):
+						if (search_matrix(node_matrix, curr) == -1):
+							curr.root = head #extra??
+							curr.set_next(new_node)
+							curr = curr.get_next(0)
+							node_matrix[i][j] = curr
+						else:
+							curr.root = head #extra??
+							i_coord = search_matrix(node_matrix, curr)[0]
+							j_coord = search_matrix(node_matrix, curr)[1]
+							curr.set_next(node_matrix[i_coord][j_coord])
+							j -= 1 #stay on current column
 
-						else: 
+		# else:
+		# 	for j in range(0, len(tr)): # don't forget to reset j
+		# 		if (len(tr[j:j+scan_length])) == scan_length: #check i'm still valid
+		# 			check = node_matrix[i][j]
+		# 			new_node = Node(tr[j:j+scan_length], None, [i, j])
+		# 			if (type(check) == Node): #check my current path is a node
+		# 			#now i have to iterate through the whole freaking matrix, 
+		# 			#TODO: memoize my current largest index?
+		# 				if (search_matrix(node_matrix, check) != -1):
+
+		# 				else: 
 					
 
 
