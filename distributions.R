@@ -136,9 +136,9 @@ create_df <- function(
 	limit=NULL) {
 
 	if (!is.null(fit)) {
-		sigma <- 4
+		sigma <- 11
 	} else {
-		sigma <- 6
+		sigma <- 7
 	} 
 
 	#generate x 
@@ -179,9 +179,9 @@ find_sigma <- function(
 	sigma
 }
 
-opstr <- generate_string(100)
+opstr <- generate_string(1000)
 chopped_up <- create_cuts(operating_str=opstr, filter=TRUE, filterby=10, cuts=40)
-transcripts <- create_transcripts(chop_df=chopped_up, transcript_number=4, length=5, variation=TRUE)
+transcripts <- create_transcripts(chop_df=chopped_up, transcript_number=4, length=18, variation=TRUE)
 plot_transcripts(dataf=transcripts, t=1)
 
 
