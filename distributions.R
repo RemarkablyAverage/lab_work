@@ -1,7 +1,7 @@
-# install.packages("ggplot2")
-# install.packages("gplots")
-# install.packages("Matrix")
-# library("Matrix")
+install.packages("ggplot2")
+install.packages("gplots")
+install.packages("Matrix")
+library("Matrix")
 
 
 
