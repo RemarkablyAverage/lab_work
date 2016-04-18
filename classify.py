@@ -98,14 +98,15 @@ def populate_pr_matrix(RNA_list, tr_matrix, scan_length, fit=False):
             tr_matrix[i, col] = rayleigh_distribution(i + 1, fit)
         tr_matrix[:,col] = tr_matrix[:,col] / sum(tr_matrix[:,col])
 
-def power_set(n):
-    lst = list(itertools.product([0, 1], repeat=n))
-    lst = [list(tp) for tp in lst]
-    return lst[1:]
+def tset(RNA_graph):
+    ret_set = set()
+    for node in RNA_graph.nodes_dict.values():
+        ret_set.add(tuple(node.list))
+    return list([list(subset) for subset in ret_set])
 
 def lists(graph):
     for x in graph.nodes_dict:
-        print(graph.nodes_dict[x].list)
+        print(graph.nodes_dict[x].list, graph.nodes_dict[x].data)
 
 def create_row(lst, pr):
     for x in range(len(lst)):
@@ -119,25 +120,25 @@ def eq_class_matrix(RNA_op_graph, tr_matrix, RNA_list, scan_length):
     #sort entry list
     RNA_list = sorted(RNA_list, key = len)
     RNA_list = RNA_list[::-1]
-    #obtain powerset
-    powerset = power_set(len(RNA_list))
+    #obtain sets
+    tsets = tset(RNA_op_graph)
     #set up parameters for matrix
     dict_nodes = RNA_op_graph.nodes_dict
     col_count = len(list(dict_nodes.values())[0].list)
     eq_pr_matrix = np.zeros((0, col_count), dtype = float)
     keys = list(RNA_op_graph.nodes_dict.keys())
     pr = 0.0
-    for subset in powerset:
+    for subset in tsets:
         for node_key in range(len(keys)):
             node = dict_nodes[keys[node_key]]
             if np.array_equal(node.list, subset):
-                print(node.list)
+                #print(node.list)
                 for i in range(len(node.list)):
                     if node.list[i] == 1:
                         start_indexes = [m.start() for m in re.finditer(node.data, RNA_list[i])]
                         for index in start_indexes:
                             for _ in range(index, index + scan_length):
-                                print("individual pr", tr_matrix[_,i])
+                                #print("individual pr", tr_matrix[_,i])
                                 pr += tr_matrix[_, i]
         #deep copy                              
         append_row = create_row(subset, pr)
@@ -149,13 +150,12 @@ def eq_class_matrix(RNA_op_graph, tr_matrix, RNA_list, scan_length):
     return eq_pr_matrix
 
 #test arrays
-RNA_arr = ["AAACGAA", "TAACGTA"] #[generate_string(50), generate_string(40), generate_string(45)]#
-#tempvariables
-scan_length = 3
+RNA_arr = [generate_string(20000), generate_string(18500), generate_string(17050)]    
+                        #generate_string(5000)]#["AAACGAA", "TAACGTA"]
 
 #test calls
 RNA_graph = rna_graph()
-scan_length = 3
+scan_length = 11
 classify(RNA_arr, scan_length, RNA_graph)
 #end classification
 
