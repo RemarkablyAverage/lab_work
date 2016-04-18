@@ -150,19 +150,20 @@ def eq_class_matrix(RNA_op_graph, tr_matrix, RNA_list, scan_length):
     return eq_pr_matrix
 
 #test arrays
-RNA_arr = [generate_string(20000), generate_string(18500), generate_string(17050)]    
+RNA_arr = [generate_string(100050), generate_string(95000), generate_string(80000), generate_string(100000), 
+            generate_string(120000), generate_string(100020)]    
                         #generate_string(5000)]#["AAACGAA", "TAACGTA"]
 
 #test calls
 RNA_graph = rna_graph()
-scan_length = 11
+scan_length = 25
 classify(RNA_arr, scan_length, RNA_graph)
 #end classification
 
 #start probability matrix construction
 tr_matrix = transcript_pr_matrix(RNA_arr)
 populate_pr_matrix(RNA_arr, tr_matrix, scan_length)
-pr_matrix = eq_class_matrix(RNA_graph, tr_matrix, RNA_arr, scan_length)
+#pr_matrix = eq_class_matrix(RNA_graph, tr_matrix, RNA_arr, scan_length)
 
 
 
