@@ -163,7 +163,7 @@ classify(RNA_arr, scan_length, RNA_graph)
 #start probability matrix construction
 tr_matrix = transcript_pr_matrix(RNA_arr)
 populate_pr_matrix(RNA_arr, tr_matrix, scan_length)
-#pr_matrix = eq_class_matrix(RNA_graph, tr_matrix, RNA_arr, scan_length)
+pr_matrix = eq_class_matrix(RNA_graph, tr_matrix, RNA_arr, scan_length)
 
 
 
