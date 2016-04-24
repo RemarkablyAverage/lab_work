@@ -187,9 +187,7 @@ def eq_class_matrix(RNA_op_graph, tr_matrix, RNA_list, scan_length):
     return eq_pr_matrix
 
 #test array
-RNA_arr = [generate_string(100), generate_string(150), generate_string(80)]#, generate_string(100), 
-            #generate_string(120), generate_string(120)]    
-                        #generate_string(5000)]#["AAACGAA", "TAACGTA"]
+RNA_arr = [generate_string(400), generate_string(300)]#["AAACGAA", "TAACGTA"]
 
 #test calls
 RNA_graph = rna_graph()
@@ -217,7 +215,13 @@ def find_eq_classes(pr_m):
         eq_classes.append(eq_class)
     return eq_classes
 
-
+def find_reads(graph, ind_vector):
+    counter = 0
+    for x in graph.nodes_dict:
+        if array_equal(graph.nodes_dict[x].list, ind_vector):
+            counter += 1
+    return counter
+asdf = set()
 def plot(RNA_graph, RNA_list, tr_m, pr_m, scan_length, tr_number):
     #plot naive distribution
     RNA_list = sorted(RNA_list, key = len)
@@ -228,19 +232,29 @@ def plot(RNA_graph, RNA_list, tr_m, pr_m, scan_length, tr_number):
     for _ in range(scan_length - 1):
         y.append(0)
     plt.plot(x, y)
+    eq_classes = find_eq_classes(pr_m)
     #determine equivalence class plots / transcript reconstruction
-    for i in range(len(pr_m[:, tr_number])):
-        #determine what kind of eq class it is (to lat)
-        if (pr_m[i, tr_number] != 0.0):
-            #determine the normalizing factor (reads)
-            counter = 0
-            # for key in RNA_graph.nodes_dict:
-            #     if (np.array_equal(check_vector, RNA_graph.node_dict[key].list)):
-            #         counter += 1
-            #find all instances of matching substring
+    for eq in range(len(eq_classes)):
+        print("all eq classes", eq_classes)
+        eq_class = eq_classes[eq]
+        if (eq_class[tr_number] != 0):
+            for key in RNA_graph.nodes_dict:
+                x_indexes = []
+                pr = pr_m[eq, tr_number] #dont' forget to divide by num_reads
+                if np.array_equal(RNA_graph.nodes_dict[key].list, eq_class):
+                    num_reads = find_reads(RNA_graph, eq_class)
+                    data = RNA_graph.nodes_dict[key].data
+                    start_indexes = [m.start() for m in re.finditer(data, RNA_list[tr_number])]
+                    #debug
+                    # for a in start_indexes:
+                    #     asdf.add(a)
+                    pr /= num_reads
+                    pr_vals = [pr] * len(start_indexes)
+                    plt.bar(start_indexes, pr_vals)
+    #plt.legend()
 
 
-plot(RNA_graph, RNA_arr, tr_matrix, pr_matrix, scan_length, 1) 
+plot(RNA_graph, RNA_arr, tr_matrix, pr_matrix, scan_length, 0) 
 
 
 
