@@ -2,7 +2,7 @@ install.packages("ggplot2")
 install.packages("gplots")
 install.packages("Matrix")
 library("Matrix")
-
+library("ggplot2")
 
 
 generate_string <- function(
